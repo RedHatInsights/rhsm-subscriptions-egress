@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: Template
+labels:
+  app: rhsm-subscriptions
+  template: rhsm-subscriptions-egress
+metadata:
+  annotations:
+    description: RHEL-based container for interop between postgres and s3.
+  name: rhsm-subscriptions-egress
+
+parameters:
+  - name: EXPORTED_TABLES
+    value: tally_snapshots subscription_capacity hardware_measurements account_config org_config
+  - name: IMAGE_TAG
+    value: latest
+  - name: MEMORY_REQUEST
+    value: 256Mi
+  - name: MEMORY_LIMIT
+    value: 256Mi
+  - name: CPU_REQUEST
+    value: 250m
+  - name: CPU_LIMIT
+    value: 500m
+
+objects:
+- apiVersion: batch/v1beta1
+  kind: CronJob
+  metadata:
+    name: rhsm-subscriptions-egress
+  spec:
+    schedule: "@daily"
+    jobTemplate:
+      spec:
+        activeDeadlineSeconds: 1800
+        template:
+          spec:
+            restartPolicy: Never
+            containers:
+            - image: quay.io/cloudservices/rhsm-subscriptions-egress:${IMAGE_TAG}
+              imagePullPolicy: Always
+              name: rhsm-subscriptions-egress
+              command: ["/bin/sh", "-c"]
+              args:
+              - >-
+                set -ex;
+                for table in $EXPORTED_TABLES; do
+                  echo "Table '${table}': Data collection started.";
+                  psql -h $POSTGRESQL_SERVICE_HOST -U $POSTGRESQL_USER $POSTGRESQL_DATABASE -c "COPY $table TO STDOUT CSV" |
+                  gzip -9 |
+                  pipenv run aws s3 cp - s3://${S3_BUCKET}/$(date -I)/${table}.csv.gz;
+                  echo "Table '${table}': Dump uploaded to intermediate storage.";
+                done;
+                echo "Success.";
+              resources:
+                requests:
+                  cpu: ${CPU_REQUEST}
+                  memory: ${MEMORY_REQUEST}
+                limits:
+                  cpu: ${CPU_LIMIT}
+                  memory: ${MEMORY_LIMIT}
+              env:
+              - name: POSTGRESQL_SERVICE_HOST
+                valueFrom:
+                valueFrom:
+                  secretKeyRef:
+                    name: rhsm-db-rds
+                    key: db.host
+              - name: POSTGRESQL_USER
+                valueFrom:
+                  secretKeyRef:
+                    name: rhsm-db-rds
+                    key: db.user
+              - name: POSTGRESQL_DATABASE
+                valueFrom:
+                  secretKeyRef:
+                    name: rhsm-db-rds
+                    key: db.name
+              - name: PGPASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: rhsm-db-rds
+                    key: db.password
+              - name: AWS_ACCESS_KEY_ID
+                valueFrom:
+                  secretKeyRef:
+                    name: egress-s3
+                    key: access_key
+              - name: AWS_SECRET_ACCESS_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: egress-s3
+                    key: secret_key
+              - name: S3_BUCKET
+                valueFrom:
+                  secretKeyRef:
+                    name: egress-s3
+                    key: bucket
+              - name: EXPORTED_TABLES
+                value: ${EXPORTED_TABLES}
