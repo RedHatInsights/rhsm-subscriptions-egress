@@ -84,12 +84,12 @@ objects:
                 valueFrom:
                   secretKeyRef:
                     name: egress-s3
-                    key: access_key
+                    key: aws_access_key_id
               - name: AWS_SECRET_ACCESS_KEY
                 valueFrom:
                   secretKeyRef:
                     name: egress-s3
-                    key: secret_key
+                    key: aws_secret_access_key
               - name: S3_BUCKET
                 valueFrom:
                   secretKeyRef:
