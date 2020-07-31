@@ -12,7 +12,7 @@ Deploy to Openshift
 
 Prerequisite secrets:
 
-- `rhsm-db-rds`: DB connection info, having `db.host`, `db.port`, `db.user`, `db.password`, and `db.name` properties.
+- `rhsm-db`: DB connection info, having `db.host`, `db.port`, `db.user`, `db.password`, and `db.name` properties.
 - `egress-s3`: secret with having `access_key`, `secret_key`, and `bucket`.
 
 ```
