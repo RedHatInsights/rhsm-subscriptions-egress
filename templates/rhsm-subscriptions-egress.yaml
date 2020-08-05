@@ -35,11 +35,11 @@ objects:
         template:
           spec:
             restartPolicy: Never
+            imagePullSecrets:
+              - name: quay-cloudservices-pull
             containers:
             - image: quay.io/cloudservices/rhsm-subscriptions-egress:${IMAGE_TAG}
               imagePullPolicy: Always
-              imagePullSecrets:
-                - name: quay-cloudservices-pull
               name: rhsm-subscriptions-egress
               command: ["/bin/sh", "-c"]
               args:
@@ -62,7 +62,6 @@ objects:
                   memory: ${MEMORY_LIMIT}
               env:
               - name: POSTGRESQL_SERVICE_HOST
-                valueFrom:
                 valueFrom:
                   secretKeyRef:
                     name: rhsm-db
