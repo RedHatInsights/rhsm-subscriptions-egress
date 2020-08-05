@@ -38,6 +38,8 @@ objects:
             containers:
             - image: quay.io/cloudservices/rhsm-subscriptions-egress:${IMAGE_TAG}
               imagePullPolicy: Always
+              imagePullSecrets:
+                - name: quay-cloudservices-pull
               name: rhsm-subscriptions-egress
               command: ["/bin/sh", "-c"]
               args:
