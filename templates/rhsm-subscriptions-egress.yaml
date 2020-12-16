@@ -10,7 +10,7 @@ metadata:
 
 parameters:
   - name: EXPORTED_TABLES
-    value: tally_snapshots subscription_capacity hardware_measurements account_config org_config
+    value: tally_snapshots subscription_capacity hardware_measurements account_config org_config hosts host_tally_buckets
   - name: IMAGE_TAG
     value: latest
   - name: MEMORY_REQUEST
@@ -62,7 +62,6 @@ objects:
                   memory: ${MEMORY_LIMIT}
               env:
               - name: POSTGRESQL_SERVICE_HOST
-                valueFrom:
                 valueFrom:
                   secretKeyRef:
                     name: rhsm-db
