@@ -31,7 +31,7 @@ objects:
     schedule: "@daily"
     jobTemplate:
       spec:
-        activeDeadlineSeconds: 14400
+        activeDeadlineSeconds: 57600
         template:
           spec:
             restartPolicy: Never
