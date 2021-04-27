@@ -10,7 +10,7 @@ metadata:
 
 parameters:
   - name: EXPORTED_TABLES
-    value: tally_snapshots subscription_capacity hardware_measurements account_config org_config hosts host_tally_buckets tally_measurements instance_measurements events
+    value: tally_snapshots subscription_capacity hardware_measurements account_config org_config hosts host_tally_buckets tally_measurements instance_measurements events subscription offering
   - name: IMAGE_TAG
     value: latest
   - name: MEMORY_REQUEST
