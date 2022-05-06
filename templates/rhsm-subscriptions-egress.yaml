@@ -21,6 +21,7 @@ parameters:
     value: 250m
   - name: CPU_LIMIT
     value: 500m
+  - name: ENVIRONMENT
 
 objects:
 - apiVersion: batch/v1beta1
@@ -48,8 +49,8 @@ objects:
                 for table in $EXPORTED_TABLES; do
                   echo "Table '${table}': Data collection started.";
                   psql -h $POSTGRESQL_SERVICE_HOST -U $POSTGRESQL_USER $POSTGRESQL_DATABASE -c "COPY $table TO STDOUT CSV" |
-                  gzip -9 |
-                  pipenv run aws s3 cp - s3://${S3_BUCKET}/$(date -I)/${table}.csv.gz;
+                  pipenv run aws s3 cp - s3://${S3_BUCKET}/${ENVIRONMENT}/${table}/historic/$(date -I)-${table}.csv;
+                  pipenv run aws s3 cp s3://${S3_BUCKET}/${ENVIRONMENT}/${table}/historic/$(date -I)-${table}.csv s3://${S3_BUCKET}/${table}/latest/full_data.csv;
                   echo "Table '${table}': Dump uploaded to intermediate storage.";
                 done;
                 echo "Success.";
@@ -98,3 +99,5 @@ objects:
                     key: bucket
               - name: EXPORTED_TABLES
                 value: ${EXPORTED_TABLES}
+              - name: ENVIRONMENT
+                value: ${ENVIRONMENT}
