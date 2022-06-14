@@ -51,6 +51,7 @@ objects:
                   psql -h $POSTGRESQL_SERVICE_HOST -U $POSTGRESQL_USER $POSTGRESQL_DATABASE -c "COPY $table TO STDOUT CSV" |
                   pipenv run aws s3 cp - s3://${S3_BUCKET}/${ENVIRONMENT}/${table}/historic/$(date -I)-${table}.csv;
                   pipenv run aws s3 cp s3://${S3_BUCKET}/${ENVIRONMENT}/${table}/historic/$(date -I)-${table}.csv s3://${S3_BUCKET}/${ENVIRONMENT}/${table}/latest/full_data.csv;
+                  pipenv run aws s3 rm s3://${S3_BUCKET}/${table}/latest/full_data.csv;
                   echo "Table '${table}': Dump uploaded to intermediate storage.";
                 done;
                 echo "Success.";
