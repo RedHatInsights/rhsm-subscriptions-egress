@@ -65,22 +65,22 @@ objects:
               - name: POSTGRESQL_SERVICE_HOST
                 valueFrom:
                   secretKeyRef:
-                    name: rhsm-db
+                    name: swatch-tally-db
                     key: db.host
               - name: POSTGRESQL_USER
                 valueFrom:
                   secretKeyRef:
-                    name: rhsm-db
+                    name: swatch-tally-db
                     key: db.user
               - name: POSTGRESQL_DATABASE
                 valueFrom:
                   secretKeyRef:
-                    name: rhsm-db
+                    name: swatch-tally-db
                     key: db.name
               - name: PGPASSWORD
                 valueFrom:
                   secretKeyRef:
-                    name: rhsm-db
+                    name: swatch-tally-db
                     key: db.password
               - name: AWS_ACCESS_KEY_ID
                 valueFrom:
