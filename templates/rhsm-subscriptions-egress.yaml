@@ -28,6 +28,10 @@ objects:
   kind: CronJob
   metadata:
     name: rhsm-subscriptions-egress
+    annotations:
+      ignore-check.kube-linter.io/no-liveness-probe: The cronjob is being deprecated for an alternate method. No probe to be added due to change in implementation
+      ignore-check.kube-linter.io/no-readiness-probe: The cronjob is being deprecated for an alternate method. No probe to be added due to change in implementation
+      ignore-check.kube-linter.io/default-service-account: The cronjob is being deprecated for an alternate method. No probe to be added due to change in implementation
   spec:
     schedule: "@daily"
     jobTemplate:
