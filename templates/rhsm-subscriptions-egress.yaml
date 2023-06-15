@@ -24,7 +24,7 @@ parameters:
   - name: ENVIRONMENT
 
 objects:
-- apiVersion: batch/v1beta1
+- apiVersion: batch/v1
   kind: CronJob
   metadata:
     name: rhsm-subscriptions-egress
