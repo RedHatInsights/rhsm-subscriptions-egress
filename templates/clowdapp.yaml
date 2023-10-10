@@ -1,0 +1,108 @@
+---
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: swatch-egress
+parameters:
+  - name: EXPORTED_TABLES
+    value: account_config account_services billable_usage_remittance events host_tally_buckets hosts instance_measurements instance_monthly_totals offering org_config sku_child_sku sku_oid subscription subscription_measurements subscription_product_ids tally_measurements tally_snapshots
+  - name: IMAGE
+    value: quay.io/cloudservices/rhsm-subscriptions-egress
+  - name: IMAGE_TAG
+    value: latest
+  - name: IMAGE_PULL_SECRET
+    value: quay-cloudservices-pull
+  - name: MEMORY_REQUEST
+    value: 256Mi
+  - name: MEMORY_LIMIT
+    value: 256Mi
+  - name: CPU_REQUEST
+    value: 250m
+  - name: CPU_LIMIT
+    value: 500m
+  - name: ENV_NAME
+    value: env-swatch-egress
+  - name: SWATCH_EGRESS_SCHEDULE
+    value: 0 0 * * *
+  - name: ENVIRONMENT
+
+objects:
+  - apiVersion: cloud.redhat.com/v1alpha1
+    kind: ClowdApp
+    metadata:
+      name: swatch-egress
+    spec:
+      envName: ${ENV_NAME}
+
+      pullSecrets:
+        name: ${IMAGE_PULL_SECRET}
+
+      database:
+        sharedDbAppName: swatch-tally
+      dependencies:
+        - swatch-tally
+
+      jobs:
+        - name: export
+          schedule: ${SWATCH_EGRESS_SCHEDULE}
+          podSpec:
+            image: ${IMAGE}:${IMAGE_TAG}
+            command: ["/bin/sh", "-c"]
+            args:
+            - >-
+              set -ex;
+              for table in $EXPORTED_TABLES; do
+                echo "Table '${table}': Data collection started.";
+                psql -h $POSTGRESQL_SERVICE_HOST -U $POSTGRESQL_USER $POSTGRESQL_DATABASE -c "COPY $table TO STDOUT CSV" |
+                pipenv run aws s3 cp - s3://${S3_BUCKET}/${ENVIRONMENT}/${table}/historic/$(date -I)-${table}.csv;
+                pipenv run aws s3 cp s3://${S3_BUCKET}/${ENVIRONMENT}/${table}/historic/$(date -I)-${table}.csv s3://${S3_BUCKET}/${ENVIRONMENT}/${table}/latest/full_data.csv;
+                echo "Table '${table}': Dump uploaded to intermediate storage.";
+              done;
+              echo "Success.";
+            resources:
+              requests:
+                cpu: ${CPU_REQUEST}
+                memory: ${MEMORY_REQUEST}
+              limits:
+                cpu: ${CPU_LIMIT}
+                memory: ${MEMORY_LIMIT}
+            env:
+              - name: POSTGRESQL_SERVICE_HOST
+                valueFrom:
+                  secretKeyRef:
+                    name: swatch-tally-db
+                    key: db.host
+              - name: POSTGRESQL_USER
+                valueFrom:
+                  secretKeyRef:
+                    name: swatch-tally-db
+                    key: db.user
+              - name: POSTGRESQL_DATABASE
+                valueFrom:
+                  secretKeyRef:
+                    name: swatch-tally-db
+                    key: db.name
+              - name: PGPASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: swatch-tally-db
+                    key: db.password
+              - name: AWS_ACCESS_KEY_ID
+                valueFrom:
+                  secretKeyRef:
+                    name: egress-s3
+                    key: aws_access_key_id
+              - name: AWS_SECRET_ACCESS_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: egress-s3
+                    key: aws_secret_access_key
+              - name: S3_BUCKET
+                valueFrom:
+                  secretKeyRef:
+                    name: egress-s3
+                    key: bucket
+              - name: EXPORTED_TABLES
+                value: ${EXPORTED_TABLES}
+              - name: ENVIRONMENT
+                value: ${ENVIRONMENT}
