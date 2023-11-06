@@ -1,0 +1,55 @@
+---
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: swatch-egress-post-deploy-tests
+objects:
+- apiVersion: batch/v1
+  kind: Job
+  metadata:
+    name: swatch-egress-post-deploy-tests-${IMAGE_TAG}-${UID}
+    annotations:
+      ignore-check.kube-linter.io/no-liveness-probe: Probes not required on Job pods
+      ignore-check.kube-linter.io/no-readiness-probe: Probes not required on Job pods
+  spec:
+    backoffLimit: 2
+    template:
+      spec:
+        imagePullSecrets:
+        - name: quay-cloudservices-pull
+        restartPolicy: Never
+        containers:
+        - image: ${IMAGE}:${IMAGE_TAG}
+          name: swatch-egress-post-deploy-tests
+          # TODO something a little more substantial here
+          command: ["/bin/sh", "-c"]
+          args:
+          - >-
+            set -ex;
+            pipenv run aws ls;
+            echo "Success.";
+          resources:
+            requests:
+              memory: ${MEMORY_REQUEST}
+              cpu: ${CPU_REQUEST}
+            limits:
+              memory: ${MEMORY_LIMIT}
+              cpu: ${CPU_LIMIT}
+
+parameters:
+- name: IMAGE
+  value: quay.io/cloudservices/rhsm-subscriptions-egress
+- name: IMAGE_TAG
+  value: latest
+- name: UID
+  description: "Unique name suffix"
+  generate: expression
+  from: "[a-z0-9]{6}"
+- name: MEMORY_REQUEST
+  value: 256Mi
+- name: MEMORY_LIMIT
+  value: 256Mi
+- name: CPU_REQUEST
+  value: 250m
+- name: CPU_LIMIT
+  value: 500m
