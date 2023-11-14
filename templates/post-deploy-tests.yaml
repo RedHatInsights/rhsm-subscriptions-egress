@@ -35,6 +35,22 @@ objects:
             limits:
               memory: ${MEMORY_LIMIT}
               cpu: ${CPU_LIMIT}
+          env:
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: egress-s3
+                key: aws_access_key_id
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: egress-s3
+                key: aws_secret_access_key
+          - name: S3_BUCKET
+            valueFrom:
+              secretKeyRef:
+                name: egress-s3
+                key: bucket
 
 parameters:
 - name: IMAGE
