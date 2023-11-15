@@ -21,13 +21,22 @@ objects:
         containers:
         - image: ${IMAGE}:${IMAGE_TAG}
           name: swatch-egress-post-deploy-tests
-          # TODO something a little more substantial here
-          command: ["/bin/sh", "-c"]
+          # TODO If we wanted to be a little more ambitious here, we could take all the egress table names
+          # and move them to a ConfigMap.  Import that ConfigMap into the environment for this deployment
+          # and then loop over every table to make sure the export is in S3.  However, egress is likely to be
+          # replaced by floorist in the very near future so just checking the hosts table seems like an
+          # acceptable solution in that timeframe.
+          command: ["/bin/bash", "-c"]
           args:
+          # Note that [[ is a bash specific builtin
           - >-
             set -ex;
-            pipenv run aws s3 ls;
-            echo "Success.";
+            LATEST=$(pipenv run aws s3 ls s3://${S3_BUCKET}/production_data/hosts/latest/ | awk '{print $1}');
+            TODAY=$(date -I);
+            if [[ "$LATEST" == "$TODAY" ]];
+              then echo "Current egress S3 found";
+              else echo "Most recent egress export is for $LATEST not $TODAY";
+            fi
           resources:
             requests:
               memory: ${MEMORY_REQUEST}
