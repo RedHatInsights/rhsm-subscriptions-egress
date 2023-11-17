@@ -29,14 +29,15 @@ objects:
           command: ["/bin/bash", "-c"]
           args:
           # Note that [[ is a bash specific builtin
+            # LATEST=$(pipenv run aws s3 ls s3://${S3_BUCKET}/production_data/hosts/latest/ | awk '{print $1}');
+            # TODAY=$(date -I);
+            # if [[ "$LATEST" == "$TODAY" ]];
+            #   then echo "Current egress S3 found";
+            #   else echo "Most recent egress export is for $LATEST not $TODAY";
+            # fi
           - >-
             set -ex;
-            LATEST=$(pipenv run aws s3 ls s3://${S3_BUCKET}/production_data/hosts/latest/ | awk '{print $1}');
-            TODAY=$(date -I);
-            if [[ "$LATEST" == "$TODAY" ]];
-              then echo "Current egress S3 found";
-              else echo "Most recent egress export is for $LATEST not $TODAY";
-            fi
+            pipenv run aws s3 ls s3://${S3_BUCKET}/production_data/
           resources:
             requests:
               memory: ${MEMORY_REQUEST}
