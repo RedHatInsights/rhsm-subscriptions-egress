@@ -37,7 +37,7 @@ objects:
             # fi
           - >-
             set -ex;
-            pipenv run aws s3 ls s3://${S3_BUCKET}/production_data/
+            pipenv run aws s3 ls s3://${S3_BUCKET}/${ENVIRONMENT}/
           resources:
             requests:
               memory: ${MEMORY_REQUEST}
@@ -61,6 +61,8 @@ objects:
               secretKeyRef:
                 name: egress-s3
                 key: bucket
+          - name: ENVIRONMENT
+            value: ${ENVIRONMENT}
 
 parameters:
 - name: IMAGE
