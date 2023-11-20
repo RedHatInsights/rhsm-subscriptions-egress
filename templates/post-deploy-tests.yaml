@@ -37,7 +37,7 @@ objects:
             # fi
           - >-
             set -ex;
-            pipenv run aws s3 ls s3://${S3_BUCKET}/${ENVIRONMENT}/
+            pipenv run aws s3 ls s3://${S3_BUCKET}/
           resources:
             requests:
               memory: ${MEMORY_REQUEST}
