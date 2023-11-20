@@ -29,15 +29,16 @@ objects:
           command: ["/bin/bash", "-c"]
           args:
           # Note that [[ is a bash specific builtin
-            # LATEST=$(pipenv run aws s3 ls s3://${S3_BUCKET}/production_data/hosts/latest/ | awk '{print $1}');
-            # TODAY=$(date -I);
-            # if [[ "$LATEST" == "$TODAY" ]];
-            #   then echo "Current egress S3 found";
-            #   else echo "Most recent egress export is for $LATEST not $TODAY";
-            # fi
+          # This test isn't perfect.  It's actually testing that the *last* egress deployment was successful
+          # since that is the deployment that would create the most recent CSV in S3
           - >-
             set -ex;
-            pipenv run aws s3 ls s3://${S3_BUCKET}/
+            LATEST=$(pipenv run aws s3 ls s3://${S3_BUCKET}/${ENVIRONMENT}/hosts/latest/ | awk '{print $1}');
+            TODAY=$(date -I);
+            if [[ "$LATEST" == "$TODAY" ]];
+              then echo "Current egress S3 found";
+              else echo "Most recent egress export is for $LATEST not $TODAY";
+            fi
           resources:
             requests:
               memory: ${MEMORY_REQUEST}
@@ -81,3 +82,4 @@ parameters:
   value: 250m
 - name: CPU_LIMIT
   value: 500m
+- name: ENVIRONMENT
