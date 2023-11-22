@@ -1,3 +1,6 @@
+# Please note this is not yet in use.  Egress is fated for retirement and moving it
+# to Clowder isn't something we can self-approve.  If Egress gets a new lease on life,
+# this will be here to use.
 ---
 apiVersion: template.openshift.io/v1
 kind: Template
