@@ -52,7 +52,7 @@ objects:
                 set -ex;
                 for table in $EXPORTED_TABLES; do
                   echo "Table '${table}': Data collection started.";
-                  psql -h $POSTGRESQL_SERVICE_HOST -U $POSTGRESQL_USER $POSTGRESQL_DATABASE -c "COPY $table TO STDOUT CSV" |
+                  psql -h $POSTGRESQL_SERVICE_HOST -U $POSTGRESQL_USER $POSTGRESQL_DATABASE -c "COPY $table TO STDOUT CSV HEADER" |
                   pipenv run aws s3 cp - s3://${S3_BUCKET}/${ENVIRONMENT}/${table}/historic/$(date -I)-${table}.csv;
                   pipenv run aws s3 cp s3://${S3_BUCKET}/${ENVIRONMENT}/${table}/historic/$(date -I)-${table}.csv s3://${S3_BUCKET}/${ENVIRONMENT}/${table}/latest/full_data.csv;
                   echo "Table '${table}': Dump uploaded to intermediate storage.";
