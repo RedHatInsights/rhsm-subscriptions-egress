@@ -43,7 +43,7 @@ objects:
             imagePullSecrets:
               - name: quay-cloudservices-pull
             containers:
-            - image: quay.io/cloudservices/rhsm-subscriptions-egress:${IMAGE_TAG}
+            - image: quay.io/redhat-services-prod/rh-subs-watch-tenant/rhsm-subscriptions-egress:${IMAGE_TAG}
               imagePullPolicy: Always
               name: rhsm-subscriptions-egress
               command: ["/bin/sh", "-c"]
