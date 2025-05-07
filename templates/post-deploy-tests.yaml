@@ -67,7 +67,7 @@ objects:
 
 parameters:
 - name: IMAGE
-  value: quay.io/redhat-user-workloads/rh-subs-watch-tenant/rhsm-subscriptions/rhsm-subscriptions-egress
+  value: quay.io/redhat-user-workloads/rh-subs-watch-tenant/rhsm-subscriptions-egress/rhsm-subscriptions-egress
 - name: IMAGE_TAG
   value: latest
 - name: UID
