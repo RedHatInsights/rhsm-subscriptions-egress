@@ -1,6 +1,6 @@
-FROM registry.redhat.io/rhel8/postgresql-12
+FROM registry.redhat.io/rhel9/postgresql-13
 USER root
-RUN curl https://raw.githubusercontent.com/pypa/pipenv/refs/tags/v2024.0.3/get-pipenv.py | /usr/libexec/platform-python
+RUN curl https://raw.githubusercontent.com/pypa/pipenv/refs/tags/v2025.0.2/get-pipenv.py | /usr/libexec/platform-python
 ADD Pipfile.lock .
 ADD Pipfile .
 RUN pipenv sync --python /usr/libexec/platform-python
