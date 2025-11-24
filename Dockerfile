@@ -18,7 +18,7 @@ LABEL description="RHSM Subscriptions Egress service based on RHEL9 PostgreSQL."
 LABEL com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI"
 
 USER root
-RUN curl https://raw.githubusercontent.com/pypa/pipenv/refs/tags/v2025.0.2/get-pipenv.py | /usr/libexec/platform-python
+RUN /usr/libexec/platform-python -m pip install --ignore-installed pipenv==2025.0.2
 ADD Pipfile.lock .
 ADD Pipfile .
 RUN pipenv sync --python /usr/libexec/platform-python
