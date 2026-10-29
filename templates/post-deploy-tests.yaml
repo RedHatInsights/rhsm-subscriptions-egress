@@ -33,7 +33,7 @@ objects:
           # since that is the deployment that would create the most recent CSV in S3
           - >-
             set -ex;
-            LATEST=$(pipenv run aws s3 ls s3://${S3_BUCKET}/${ENVIRONMENT}/hosts/latest/ | awk '{print $1}');
+            LATEST=$(aws s3 ls s3://${S3_BUCKET}/${ENVIRONMENT}/hosts/latest/ | awk '{print $1}');
             TODAY=$(date -I);
             if [[ "$LATEST" == "$TODAY" ]];
               then echo "Current egress S3 found";
