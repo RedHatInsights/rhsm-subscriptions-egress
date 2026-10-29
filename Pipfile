@@ -6,7 +6,7 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-awscli = "*"
+awscli = "==1.38.24"
 
 [requires]
 python_version = "3.9"
