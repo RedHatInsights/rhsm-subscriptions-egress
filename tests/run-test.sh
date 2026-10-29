@@ -47,14 +47,14 @@ test_egress_functionality() {
     -e S3_SECRET_KEY="$S3_SECRET_KEY" \
     -e S3_ENDPOINT="$S3_ENDPOINT" \
     "$EGRESS_IMAGE" sh -c '
-      pipenv run aws configure set aws_access_key_id "$S3_ACCESS_KEY"
-      pipenv run aws configure set aws_secret_access_key "$S3_SECRET_KEY"
+      aws configure set aws_access_key_id "$S3_ACCESS_KEY"
+      aws configure set aws_secret_access_key "$S3_SECRET_KEY"
 
       for table in $EXPORTED_TABLES; do
         echo "Table ${table}: Data collection started.";
         PGPASSWORD="'"$POSTGRESQL_PASSWORD"'" psql -h $POSTGRESQL_SERVICE_HOST -U $POSTGRESQL_USER -d $POSTGRESQL_DATABASE -c "COPY $table TO STDOUT CSV HEADER" |
-        pipenv run aws s3 cp - s3://${S3_BUCKET}/${ENVIRONMENT}/${table}/historic/$(date -I)-${table}.csv --endpoint-url="$S3_ENDPOINT";
-        pipenv run aws s3 cp s3://${S3_BUCKET}/${ENVIRONMENT}/${table}/historic/$(date -I)-${table}.csv s3://${S3_BUCKET}/${ENVIRONMENT}/${table}/latest/full_data.csv --endpoint-url="$S3_ENDPOINT";
+        aws s3 cp - s3://${S3_BUCKET}/${ENVIRONMENT}/${table}/historic/$(date -I)-${table}.csv --endpoint-url="$S3_ENDPOINT";
+        aws s3 cp s3://${S3_BUCKET}/${ENVIRONMENT}/${table}/historic/$(date -I)-${table}.csv s3://${S3_BUCKET}/${ENVIRONMENT}/${table}/latest/full_data.csv --endpoint-url="$S3_ENDPOINT";
         echo "Table ${table}: Dump uploaded to intermediate storage.";
       done;
     '

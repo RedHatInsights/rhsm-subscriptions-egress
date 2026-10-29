@@ -1,0 +1,5 @@
+[project]
+name = "rhsm-subscriptions-egress"
+version = "1.0.0"
+description = "RHSM Subscriptions Egress — PostgreSQL CSV export to S3"
+requires-python = ">=3.9"
